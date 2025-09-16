@@ -13,12 +13,25 @@ class Matrix:
         #self.determinant
 
     def transpose(self):
-        for i, j in list(combinations([_ for _ in range(min(self.rows, self.columns))], 2)):
-            self.matrix[i][j], self.matrix[j][i] = self.matrix[j][i], self.matrix[i][j]
         if self.rows == self.columns:
             return
 
         diff = abs(self.rows - self.columns)
+        if max(self.rows, self.columns) == self.rows:
+            extra = [[] for _ in range(diff + 1)]
+            for j in range(self.columns):
+                for i in range(self.rows):
+                    extra[j].append(self.matrix[i][j])
+            self.matrix.clear()
+            self.matrix = extra
+            return
+
+        for i, j in list(combinations([_ for _ in range(min(self.rows, self.columns))], 2)):
+            self.matrix[i][j], self.matrix[j][i] = self.matrix[j][i], self.matrix[i][j]
+
+        if diff == 0:
+            return
+
         if max(self.rows, self.columns) == self.columns:
             extra = [[] for _ in range(diff)]
 
@@ -30,15 +43,15 @@ class Matrix:
             self.matrix.extend(extra)
 
 
+
     def __str__(self):
-        # Кринж
-        print(self.matrix)
+        return "\n".join([" ".join(map(str, row)) for row in self.matrix])
 
     # def _calc_determinant(self):
 
 
 def main():
-    matrix = Matrix(2, 4, [[1, 2, 3, 4], [5, 6, 7, 8]])
+    matrix = Matrix(3, 2, [[1, 2], [3, 4], [5, 6]])
     matrix.transpose()
     print(matrix)
 
