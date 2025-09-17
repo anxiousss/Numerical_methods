@@ -4,26 +4,25 @@ from itertools import combinations
 
 
 class Matrix:
-    def __init__(self, rows: int, columns: int, matrix:List[List[int]] = None):
+    def __init__(self, rows: int, columns: int, matrix:List[List[int]] = None, free_members: List[int] = None):
         if matrix is None:
             self.matrix = []
         self.matrix: List[List[int]] = matrix
         self.rows: int = rows
         self.columns: int = columns
+        self.free_members = free_members
         #self.determinant
 
     def transpose(self):
-        if self.rows == self.columns:
-            return
-
         diff = abs(self.rows - self.columns)
-        if max(self.rows, self.columns) == self.rows:
+        if max(self.rows, self.columns) == self.rows and diff != 0:
             extra = [[] for _ in range(diff + 1)]
             for j in range(self.columns):
                 for i in range(self.rows):
                     extra[j].append(self.matrix[i][j])
             self.matrix.clear()
             self.matrix = extra
+            self.rows, self.columns = self.columns, self.rows
             return
 
         for i, j in list(combinations([_ for _ in range(min(self.rows, self.columns))], 2)):
@@ -36,11 +35,14 @@ class Matrix:
             extra = [[] for _ in range(diff)]
 
             for i in range(self.rows):
+                place = 0
                 for k in range(self.columns - diff, self.columns):
-                    extra[k - diff].append(self.matrix[i][k])
+                    extra[place].append(self.matrix[i][k])
+                    place += 1
                 self.matrix[i] = self.matrix[i][:self.columns - diff]
 
             self.matrix.extend(extra)
+            self.rows, self.columns = self.columns, self.rows
 
 
 
@@ -49,11 +51,3 @@ class Matrix:
 
     # def _calc_determinant(self):
 
-
-def main():
-    matrix = Matrix(3, 2, [[1, 2], [3, 4], [5, 6]])
-    matrix.transpose()
-    print(matrix)
-
-if __name__ == "__main__":
-    main()
