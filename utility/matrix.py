@@ -4,12 +4,18 @@ from itertools import combinations
 
 
 class Matrix:
-    def __init__(self, rows: int, columns: int, matrix:List[List[int]] = None, free_members: List[int] = None):
+    def __init__(self, rows: int, columns: int, matrix:List[List[int]] = None,
+                 free_members: List[int] = None, diagonals: List[List[int]] = None):
         if matrix is None:
             self.matrix = []
-        self.matrix: List[List[int]] = matrix
+
+        if diagonals is not None:
+            self.diagonals = diagonals
+
         self.rows: int = rows
         self.columns: int = columns
+        self.matrix: List[List[int]] = matrix
+
         self.free_members = free_members
         #self.determinant
 
