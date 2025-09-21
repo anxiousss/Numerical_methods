@@ -4,8 +4,8 @@ from itertools import combinations
 
 
 class Matrix:
-    def __init__(self, rows: int, columns: int, matrix:List[List[int]] = None,
-                 free_members: List[int] = None, diagonals: List[List[int]] = None, identity: bool = None):
+    def __init__(self, rows: int, columns: int, matrix:List[List[int | float]] = None,
+                 free_members: List[int | float] = None, diagonals: List[List[int | float]] = None, identity: bool = None):
 
         if diagonals is not None:
             self.diagonals = diagonals
