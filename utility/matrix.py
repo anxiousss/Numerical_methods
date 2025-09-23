@@ -18,8 +18,8 @@ class Matrix:
             else:
                 self.matrix = [[0] * self.rows for _ in range(self.rows)]
         else:
-            self.matrix: List[List[int]] = matrix
-        self.free_members = free_members
+            self.matrix: List[List[int | float]] | List[int | float] = matrix
+        self.free_members: List[int | float] = free_members
 
     def transpose(self):
         diff = abs(self.rows - self.columns)
