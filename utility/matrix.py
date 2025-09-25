@@ -1,6 +1,7 @@
 from typing import List
-from itertools import combinations
 
+
+from itertools import combinations
 
 
 class Matrix:
@@ -51,8 +52,6 @@ class Matrix:
 
             self.matrix.extend(extra)
             self.rows, self.columns = self.columns, self.rows
-
-
 
     def __str__(self):
         return "\n".join([" ".join(map(str, row)) for row in self.matrix])

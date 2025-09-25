@@ -22,13 +22,15 @@ def calculate_norm(vector: List[int | float]) -> int | float:
     return sum(el ** 2 for el in vector) ** 0.5
 
 def qr_decomposition(system: Matrix) -> List[int | float]:
+    print(system, end='\n\n')
     system.transpose()
+    print(system)
     orthogonal = Matrix(system.rows, system.columns, None, None, None, False)
     orthonormal = Matrix(system.rows, system.columns, None, None, None, False)
     for i in range(system.rows):
         total = [0 for _ in range(system.rows)]
         for j in range(i):
-            term = projection_operator(orthogonal.matrix[j], system.matrix[i])
+            term = projection_operator(system.matrix[i], orthogonal.matrix[j])
             total = vector_add(total, term, '-')
         orthogonal.matrix[i] = vector_add(system.matrix[i], total, '+')
         norm = calculate_norm(orthogonal.matrix[i])
@@ -39,7 +41,9 @@ def qr_decomposition(system: Matrix) -> List[int | float]:
 
 
 def main():
-    system = Matrix(2, 2, [[3, 1], [1, 2]])
+    system = Matrix(3, 3, [[6, 5, -6], [4, -6, 9], [-6, 6, 1]])
+    """system = Matrix(2, 2, [[3, 1],
+                                            [1 ,2]])"""
     print(qr_decomposition(system))
 
 
