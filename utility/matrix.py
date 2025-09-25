@@ -74,3 +74,17 @@ class Matrix:
                 result += (-1) ** k * coefficient * minor.calc_determinant()
 
         return result
+
+    def _multiply(self, other: "Matrix") -> "Matrix":
+        if self.columns != other.rows:
+            raise ValueError('Несовместимые размеры матриц.')
+
+        result = Matrix(self.rows, other.columns, None, None, None, False)
+        for i in range(self.rows):
+            for j in range(self.columns):
+                result.matrix[i][j] = sum(self.matrix[i][r] * other.matrix[r][j] for r in range(self.columns))
+
+        return result
+
+    def __mul__(self, other):
+        return self._multiply(other)
