@@ -1,5 +1,7 @@
 from typing import List
 
+
+
 from utility.matrix import Matrix
 
 
@@ -12,7 +14,7 @@ def projection_operator(a: List[int | float], b: List[int | float]) -> List[int 
     return [coeff * b[i] for i in range(len(b))]
 
 
-def vector_add(a: List[int | float], b: List[int | float], sign: str) ->List[int | float]:
+def vector_add(a: List[int | float], b: List[int | float], sign: str) -> List[int | float]:
     if sign == '+':
         return [a[i] + b[i] for i in range(len(a))]
     return [a[i] - b[i] for i in range(len(a))]
@@ -21,10 +23,9 @@ def vector_add(a: List[int | float], b: List[int | float], sign: str) ->List[int
 def calculate_norm(vector: List[int | float]) -> int | float:
     return sum(el ** 2 for el in vector) ** 0.5
 
+
 def qr_decomposition(system: Matrix) -> List[int | float]:
-    print(system, end='\n\n')
     system.transpose()
-    print(system)
     orthogonal = Matrix(system.rows, system.columns, None, None, None, False)
     orthonormal = Matrix(system.rows, system.columns, None, None, None, False)
     for i in range(system.rows):
@@ -37,6 +38,8 @@ def qr_decomposition(system: Matrix) -> List[int | float]:
         orthonormal.matrix[i] = [el / norm for el in orthogonal.matrix[i]]
 
     R = orthonormal * system
+    print(orthonormal)
+    print(R)
     return [R.matrix[i][i] for i in range(R.rows)]
 
 

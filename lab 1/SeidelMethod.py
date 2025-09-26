@@ -4,6 +4,10 @@ from utility.matrix import Matrix
 
 
 def seidel_method(system: Matrix, accuracy: float) -> List[int | float]:
+    for i in range(system.rows):
+        if abs(system.matrix[i][i]) <= sum(abs(system.matrix[i][j]) if i != j else 0 for j in range(system.columns)):
+            raise ValueError('Не выполняется достаточное условие сходимости')
+
     if system.calc_determinant() == 0 or system.matrix[0][0] == 0:
         raise ValueError('Разложение не работает для вырожденных матриц.')
 
@@ -23,6 +27,7 @@ def seidel_method(system: Matrix, accuracy: float) -> List[int | float]:
         X_next = []
 
     return X_prev
+
 
 def main():
     system = Matrix(4, 4, [[10, -1, -2, 5],

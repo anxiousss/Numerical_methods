@@ -2,7 +2,12 @@ from typing import List
 
 from utility.matrix import Matrix
 
+
 def simple_iteration_method(system: Matrix, accuracy: float) -> List[int | float]:
+    for i in range(system.rows):
+        if abs(system.matrix[i][i]) <= sum(abs(system.matrix[i][j]) if i != j else 0 for j in range(system.columns)):
+            raise ValueError('Не выполняется достаточное условие сходимости')
+
     if system.calc_determinant() == 0 or system.matrix[0][0] == 0:
         raise ValueError('Разложение не работает для вырожденных матриц.')
 
@@ -20,8 +25,8 @@ def simple_iteration_method(system: Matrix, accuracy: float) -> List[int | float
         X_prev = X_next
         X_next = [0 for _ in range(system.rows)]
 
-
     return X_prev
+
 
 def main():
     system = Matrix(4, 4, [[10, -1, -2, 5],
