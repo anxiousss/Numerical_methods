@@ -1,6 +1,6 @@
-from typing import List
+from typing import List, Tuple
 
-
+import numpy as np
 
 from utility.matrix import Matrix
 
@@ -24,7 +24,15 @@ def calculate_norm(vector: List[int | float]) -> int | float:
     return sum(el ** 2 for el in vector) ** 0.5
 
 
-def qr_decomposition(system: Matrix) -> List[int | float]:
+def stop_condition(A: Matrix, accuracy: float) -> bool:
+    for i in range(A.rows):
+        for j in range(A.columns):
+            if (abs(A.matrix[i][j]) >= accuracy and i > j) or (abs(A.matrix[i][j]) == float('inf') and i < j):
+                return False
+    return True
+
+
+def qr_decomposition(system: Matrix) -> Tuple[Matrix, Matrix]:
     system.transpose()
     orthogonal = Matrix(system.rows, system.columns, None, None, None, False)
     orthonormal = Matrix(system.rows, system.columns, None, None, None, False)
@@ -37,17 +45,29 @@ def qr_decomposition(system: Matrix) -> List[int | float]:
         norm = calculate_norm(orthogonal.matrix[i])
         orthonormal.matrix[i] = [el / norm for el in orthogonal.matrix[i]]
 
+    system.transpose()
     R = orthonormal * system
-    print(orthonormal)
-    print(R)
+    orthonormal.transpose()
+    return orthonormal, R
+
+
+def qr_algorithm(A: Matrix, accuracy: float) -> List[int | float]:
+    while True:
+        Q, R = qr_decomposition(A)
+        A = R * Q
+        if stop_condition(A, accuracy):
+            break
     return [R.matrix[i][i] for i in range(R.rows)]
 
 
 def main():
     system = Matrix(3, 3, [[6, 5, -6], [4, -6, 9], [-6, 6, 1]])
-    """system = Matrix(2, 2, [[3, 1],
-                                            [1 ,2]])"""
-    print(qr_decomposition(system))
+    A = np.array([[6, 5, -6], [4, -6, 9], [-6, 6, 1]])
+    Q, R = np.linalg.qr(A)
+    print(Q)
+    eigenvalues, eigenvectors = np.linalg.eig(A)
+    print(eigenvalues)
+    print(qr_algorithm(system, 1e-10))
 
 
 if __name__ == "__main__":

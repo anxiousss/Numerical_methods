@@ -5,8 +5,9 @@ from itertools import combinations
 
 
 class Matrix:
-    def __init__(self, rows: int, columns: int, matrix:List[List[int | float]] = None,
-                 free_members: List[int | float] = None, diagonals: List[List[int | float]] = None, identity: bool = None):
+    def __init__(self, rows: int, columns: int, matrix: List[List[int | float]] = None,
+                 free_members: List[int | float] = None, diagonals: List[List[int | float]] = None,
+                 identity: bool = None):
 
         if diagonals is not None:
             self.diagonals = diagonals
@@ -80,7 +81,7 @@ class Matrix:
 
         result = Matrix(self.rows, other.columns, None, None, None, False)
         for i in range(self.rows):
-            for j in range(self.columns):
+            for j in range(other.columns):
                 result.matrix[i][j] = sum(self.matrix[i][r] * other.matrix[r][j] for r in range(self.columns))
 
         return result
