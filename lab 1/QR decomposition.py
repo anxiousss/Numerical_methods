@@ -1,7 +1,5 @@
 from typing import List, Tuple
 
-import numpy as np
-
 from utility.matrix import Matrix
 
 
@@ -52,22 +50,20 @@ def qr_decomposition(system: Matrix) -> Tuple[Matrix, Matrix]:
 
 
 def qr_algorithm(A: Matrix, accuracy: float) -> List[int | float]:
+    current_A = A
     while True:
-        Q, R = qr_decomposition(A)
-        A = R * Q
-        if stop_condition(A, accuracy):
+        Q, R = qr_decomposition(current_A)
+        current_A = R * Q
+        if stop_condition(current_A, accuracy):
             break
-    return [R.matrix[i][i] for i in range(R.rows)]
+    return [current_A.matrix[i][i] for i in range(current_A.rows)]
 
 
 def main():
     system = Matrix(3, 3, [[6, 5, -6], [4, -6, 9], [-6, 6, 1]])
-    A = np.array([[6, 5, -6], [4, -6, 9], [-6, 6, 1]])
-    Q, R = np.linalg.qr(A)
-    print(Q)
-    eigenvalues, eigenvectors = np.linalg.eig(A)
-    print(eigenvalues)
-    print(qr_algorithm(system, 1e-10))
+
+    eigenvalues = qr_algorithm(system, 1e-10)
+    print("Собственные значения:", eigenvalues)
 
 
 if __name__ == "__main__":
