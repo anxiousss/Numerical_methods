@@ -1,7 +1,7 @@
 from typing import List
 
 
-from itertools import combinations
+from functions import combinations
 
 
 class Matrix:
