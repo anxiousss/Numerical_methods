@@ -1,7 +1,7 @@
 from typing import List
 
 
-from functions import combinations
+from utility.functions import combinations
 
 
 class Matrix:
@@ -9,19 +9,18 @@ class Matrix:
                  free_members: List[int | float] = None, diagonals: List[List[int | float]] = None,
                  identity: bool = None):
 
-        if diagonals is not None:
-            self.diagonals = diagonals
-
         self.rows: int = rows
         self.columns: int = columns
         if matrix is None:
             if identity:
-                self.matrix = [[int(i == j) for j in range(self.rows)] for i in range(self.rows)]
+                self.matrix = [[int(i == j) for j in range(self.columns)] for i in range(self.rows)]
             else:
                 self.matrix = [[0] * self.rows for _ in range(self.rows)]
         else:
             self.matrix: List[List[int | float]] | List[int | float] = matrix
         self.free_members: List[int | float] = free_members
+        self.diagonals = diagonals
+
 
     def transpose(self):
         diff = abs(self.rows - self.columns)
@@ -86,5 +85,11 @@ class Matrix:
 
         return result
 
+    def copy(self):
+        return self.__copy__()
+
     def __mul__(self, other):
         return self._multiply(other)
+
+    def __copy__(self):
+        return Matrix(self.rows, self.columns, self.matrix, self.free_members, self.diagonals)
