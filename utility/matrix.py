@@ -8,6 +8,14 @@ class Matrix:
     def __init__(self, rows: int, columns: int, matrix: List[List[int | float]] = None,
                  free_members: List[int | float] = None, diagonals: List[List[int | float]] = None,
                  identity: bool = None):
+        """
+        :param rows: Количество строк.
+        :param columns: Количество столбцов.
+        :param matrix: Матрица размером rows * columns.
+        :param free_members: Правая часть в уравнении Ax = b, где A это matrix.
+        :param diagonals: Три диагонали для метода прогонки в трехдиагональном методе.
+        :param identity: Будет ли матрица единичнокй или нулевой при отсутвии задаваемой матрицы.
+        """
 
         self.rows: int = rows
         self.columns: int = columns
@@ -17,12 +25,16 @@ class Matrix:
             else:
                 self.matrix = [[0] * self.columns    for _ in range(self.rows)]
         else:
-            self.matrix: List[List[int | float]] | List[int | float] = matrix
+            self.matrix: List[List[int | float]] = matrix
         self.free_members: List[int | float] = free_members
         self.diagonals = diagonals
 
 
-    def transpose(self):
+    def transpose(self) -> None:
+        """
+        Транспонирует матрицу.
+        :return:
+        """
         diff = abs(self.rows - self.columns)
         if max(self.rows, self.columns) == self.rows and diff != 0:
             extra = [[] for _ in range(diff + 1)]
@@ -57,6 +69,11 @@ class Matrix:
         return "\n".join([" ".join(map(str, row)) for row in self.matrix])
 
     def calc_determinant(self):
+        """
+        Вычисление определителя рекурсивным способом.
+        Сложность O(n!).
+        :return:
+        """
         if self.rows == 2:
             return self.matrix[0][0] * self.matrix[1][1] - self.matrix[0][1] * self.matrix[1][0]
         else:
@@ -75,6 +92,12 @@ class Matrix:
         return result
 
     def _multiply(self, other: "Matrix") -> "Matrix":
+        """
+        Стандартное умножение матриц.
+        Сложность O(n^3).
+        :param other: Вторая матрица.
+        :return: Результаат умножения.
+        """
         if self.columns != other.rows:
             raise ValueError('Несовместимые размеры матриц.')
 
@@ -89,6 +112,16 @@ class Matrix:
                 # print(result_matrix)
 
         return Matrix(self.rows, other.columns, result_matrix)
+
+    def calculate_norm(self) -> int | float:
+        """
+        Расчет нормы матрицы для итерационных алгоритмов.
+        :return: Норма.
+        """
+        self.transpose()
+        max_el = max(sum(self.matrix[i]) for i in range(self.columns))
+        self.transpose()
+        return max_el
 
     def copy(self):
         return self.__copy__()
