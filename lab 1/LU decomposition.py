@@ -6,6 +6,9 @@ from utility.functions import prod
 
 
 def back_substitution(system: Matrix) -> List[float]:
+    """
+    Обратная подстановка - решение СЛАУ с верхней треугольной матрицей.
+    """
     X = [0.0 for _ in range(system.rows)]
     X[-1] = system.free_members[-1] / system.matrix[-1][-1]
     for i in range(system.rows - 1, -1, -1):
@@ -15,6 +18,9 @@ def back_substitution(system: Matrix) -> List[float]:
 
 
 def direct_substitution(system: Matrix) -> List[float]:
+    """
+    Прямая подстановка - решение СЛАУ с нижней треугольной матрицей.
+    """
     Y = [0.0 for _ in range(system.rows)]
     Y[0] = system.free_members[0] / system.matrix[0][0]
     for i in range(1, system.rows):
@@ -23,6 +29,12 @@ def direct_substitution(system: Matrix) -> List[float]:
 
 
 def lup_decomposition(system: Matrix) -> Tuple[Matrix, Matrix, List[int]]:
+    """
+    LUP разложение исходной системы.
+    L - Нижнетреугольная матрица.
+    U - Верхнетреугольная матрица.
+    P - Вектор перестановок.
+    """
     n = system.rows
     A = system.copy()
     P = list(range(n))
@@ -123,7 +135,7 @@ def determinant(L: Matrix, U: Matrix, P: List[int]) -> float:
     n = L.rows
     det = prod(U.matrix[i][i] for i in range(n))
 
-    # Учет перестановок (каждая перестановка меняет знак определителя.
+    # Учет перестановок (каждая перестановка меняет знак определителя).
     swaps = sum(1 if P[i] != i else 0 for i in range(n))
     if swaps % 2 == 1:
         det = -det

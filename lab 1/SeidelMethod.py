@@ -35,7 +35,7 @@ def seidel_method(system: Matrix, accuracy: float) -> List[int | float]:
             el = (sum(alpha.matrix[i][j] * X_next[j] if i != j else 0 for j in range(len(X_next)))
                   + sum(alpha.matrix[i][k] * X_prev[k] for k in range(len(X_next), alpha.columns))) + beta[i]
             X_next.append(el)
-        # Условие оканчания вычислений: ((||a|| / (1 - ||a|| )) * |X[i]^(k + 1) - X[i]^k|) < eps.
+        # Условие окончания вычислений: ((||а|| / (1 - ||a|| )) * |X[i]^(k + 1) - X[i]^k|) < eps.
         diff = all(((alpha_norm / (1 - alpha_norm)) *
                     abs(X_next[j] - X_prev[j])) < accuracy for j in range(system.rows))
         X_prev = X_next

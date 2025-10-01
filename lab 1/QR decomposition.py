@@ -1,4 +1,7 @@
-from typing import List, Tuple
+import math
+from typing import List, Tuple, Any
+
+import numpy as np
 
 from utility.matrix import Matrix
 
@@ -32,29 +35,27 @@ def calculate_norm(vector: List[int | float]) -> int | float:
     return sum(el ** 2 for el in vector) ** 0.5
 
 
-def eigenvalues_from_block(block: List[int | float]) -> Tuple[str, str]:
-    a, b, c, d = block
-    D = (a - d) ** 2 + 4 * b * c
-    alpha = -b / (2 * a)
-    beta = abs(D) ** 0.5 / (2 * a)
-    return f'{alpha} + i{beta}', f'{alpha} - i{beta}'
-
-def stop_condition(A: Matrix, accuracy: float) -> bool:
+def stop_condition(A: Matrix, accuracy: float, indexes: List[int]) -> bool:
     """
     Условие остановки работы QR алгоритма.
     """
-    norm = A.calculate_norm()
     for i in range(A.rows):
         for j in range(A.columns):
-            if (abs(A.matrix[i][j]) >= accuracy and i > j) or (abs(A.matrix[i][j]) == float('inf') and i < j):
+            if ((abs(A.matrix[i][j]) >= accuracy and i > j and i in indexes)
+                        or (abs(A.matrix[i][j]) == float('inf') and i < j)):
                 return False
     return True
 
 
 def qr_decomposition(system: Matrix) -> Tuple[Matrix, Matrix]:
+    """
+    QR разложение системы через процесс ортогонализации грамма-шмидта.
+    Q - Ортонормированая матрица. Q^-1 = Q^T
+    R - Верхнетреугольная матрица с СЗ на главной диагонали.
+    """
     system.transpose()
-    orthogonal = Matrix(system.rows, system.columns, None, None, None, False)
-    orthonormal = Matrix(system.rows, system.columns, None, None, None, False)
+    orthogonal = Matrix(system.rows, system.columns, identity=False)
+    orthonormal = Matrix(system.rows, system.columns, identity=False)
     # Проделываем процесс грамма-шмидта для системы.
     for i in range(system.rows):
         total = [0 for _ in range(system.rows)]
@@ -71,28 +72,44 @@ def qr_decomposition(system: Matrix) -> Tuple[Matrix, Matrix]:
     return orthonormal, R
 
 
-def qr_algorithm(A: Matrix, accuracy: float) -> List[str]:
+def qr_algorithm(A: Matrix, accuracy: float) -> set[str]:
     # Все матрицы A являются подобными
     current_A = A
-    subdiagonals = [A.matrix[i + 1][i] for i in range(A.rows - 1)]
-    eigenvalues = [''] * current_A.rows
+    eigenvalues = set()
+    arg_prev, arg_next = [], []
     while True:
+        real_indexes = []
+        for i in range(current_A.rows - 1):
+            a, b, c, d = (current_A.matrix[i][i], current_A.matrix[i][i + 1],
+                          current_A.matrix[i + 1][i], current_A.matrix[i + 1][i + 1])
+
+            D = (a - d) ** 2 + 4 * b * c
+            if D >= 0:
+                real_indexes.append(i)
+                eigenvalues.add(f'{current_A.matrix[i][i]}')
+                eigenvalues.add(f'{current_A.matrix[i + 1][i + 1]}')
+            else:
+                alpha = -b / (2 * a)
+                beta = abs(D) ** 0.5 / (2 * a)
+                arg_next.append((alpha ** 2 + beta ** 2) ** 0.5)
+                eigenvalues.add(f'{alpha} + {beta}j')
+                eigenvalues.add(f'{alpha} - {beta}j')
+
+        if stop_condition(current_A, accuracy, real_indexes) and all(abs(arg_prev[k] - arg_next[k]) < accuracy
+                                                                     for k in range(math.ceil(current_A.rows / 2) // 2)):
+            return eigenvalues
+
+        arg_prev = arg_next
+        arg_next.clear()
         Q, R = qr_decomposition(current_A)
         current_A = R * Q
-        for i in range(current_A.rows - 1):
-            if subdiagonals[i] >= accuracy:
-                a, b, c, d = (current_A.matrix[i][i], current_A.matrix[i][i + 1],
-                              current_A.matrix[i + 1][i], current_A.matrix[i + 1][i + 1])
-                eigenvalues[i], eigenvalues[i + 1] = eigenvalues_from_block([a, b, c, d])
-            else:
-                eigenvalues[i] = f'{current_A.matrix[i][i]}'
-
-        if stop_condition(current_A, accuracy):
-                return eigenvalues
-        eigenvalues = [''] * current_A.rows
+        eigenvalues.clear()
 
 def main():
-    system = Matrix(3, 3, [[6, 5, -6], [4, -6, 9], [-6, 6, 1]])
+    system = Matrix(3, 3, [[3, -7, -1], [-9, -8, 7], [5, 2, 2]])
+    A = np.array([[3, -7, -1], [-9, -8, 7], [5, 2, 2]])
+    w, v = np.linalg.eig(A)
+    print(w)
     eigenvalues = qr_algorithm(system, 1e-10)
     print("Собственные значения:", eigenvalues)
 
