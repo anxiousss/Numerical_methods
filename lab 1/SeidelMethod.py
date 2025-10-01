@@ -22,6 +22,9 @@ def seidel_method(system: Matrix, accuracy: float) -> List[int | float]:
     # beta[i][j] = b[i] / a[i][i]
     beta = [system.free_members[i] / system.matrix[i][i] for i in range(system.rows)]
     alpha_norm = alpha.calculate_norm()
+    if alpha_norm >= 1:
+        print(alpha_norm)
+        raise ValueError('Норма матрицы больше единицы, метод не работает.')
     X_prev, X_next = beta.copy(), []
     diff = False
     iterations = 0
@@ -32,13 +35,9 @@ def seidel_method(system: Matrix, accuracy: float) -> List[int | float]:
             el = (sum(alpha.matrix[i][j] * X_next[j] if i != j else 0 for j in range(len(X_next)))
                   + sum(alpha.matrix[i][k] * X_prev[k] for k in range(len(X_next), alpha.columns))) + beta[i]
             X_next.append(el)
-        if alpha_norm < 1:
-            # Условие оканчания вычислений: |X[i]^(k + 1) - X[i]^k| < eps.
-            diff = all(abs(X_next[i] - X_prev[i]) < accuracy for i in range(system.rows))
-        else:
-            # Условие оканчания вычислений: ((||a|| / (1 - ||a|| )) * |X[i]^(k + 1) - X[i]^k|) < eps.
-            diff = all(((alpha_norm / (1 - alpha_norm)) *
-                        abs(X_next[j] - X_prev[j])) < accuracy for j in range(system.rows))
+        # Условие оканчания вычислений: ((||a|| / (1 - ||a|| )) * |X[i]^(k + 1) - X[i]^k|) < eps.
+        diff = all(((alpha_norm / (1 - alpha_norm)) *
+                    abs(X_next[j] - X_prev[j])) < accuracy for j in range(system.rows))
         X_prev = X_next
         X_next = []
 

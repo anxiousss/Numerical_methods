@@ -118,10 +118,7 @@ class Matrix:
         Расчет нормы матрицы для итерационных алгоритмов.
         :return: Норма.
         """
-        self.transpose()
-        max_el = max(sum(self.matrix[i]) for i in range(self.columns))
-        self.transpose()
-        return max_el
+        return max(sum(self.matrix[i]) for i in range(self.columns))
 
     def copy(self):
         return self.__copy__()
