@@ -15,7 +15,7 @@ class Matrix:
             if identity:
                 self.matrix = [[int(i == j) for j in range(self.columns)] for i in range(self.rows)]
             else:
-                self.matrix = [[0] * self.rows for _ in range(self.rows)]
+                self.matrix = [[0] * self.columns    for _ in range(self.rows)]
         else:
             self.matrix: List[List[int | float]] | List[int | float] = matrix
         self.free_members: List[int | float] = free_members
@@ -78,12 +78,17 @@ class Matrix:
         if self.columns != other.rows:
             raise ValueError('Несовместимые размеры матриц.')
 
-        result = Matrix(self.rows, other.columns, None, None, None, False)
+        result_matrix = [[0] * other.columns for _ in range(self.rows)]
+
         for i in range(self.rows):
             for j in range(other.columns):
-                result.matrix[i][j] = sum(self.matrix[i][r] * other.matrix[r][j] for r in range(self.columns))
+                total = 0
+                for r in range(self.columns):
+                    total += self.matrix[i][r] * other.matrix[r][j]
+                result_matrix[i][j] = total
+                # print(result_matrix)
 
-        return result
+        return Matrix(self.rows, other.columns, result_matrix)
 
     def copy(self):
         return self.__copy__()

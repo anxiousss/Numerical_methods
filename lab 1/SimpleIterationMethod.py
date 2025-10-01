@@ -23,7 +23,9 @@ def simple_iteration_method(system: Matrix, accuracy: float) -> List[int | float
     beta = [system.free_members[i] / system.matrix[i][i] for i in range(system.rows)]
     X_prev, X_next = beta.copy(), beta.copy()
     diff = False
+    iterations = 0
     while not diff:
+        iterations += 1
         for i in range(system.rows):
             # x^(k+1) = alpha * x^k + beta
             # сумма произведений предыдущих иксов и элементов матрицы альфа + правая часть.
@@ -34,6 +36,8 @@ def simple_iteration_method(system: Matrix, accuracy: float) -> List[int | float
         diff = all(abs(X_next[i] - X_prev[i]) < accuracy for i in range(system.rows))
         X_prev = X_next
         X_next = [0 for _ in range(system.rows)]
+
+    print(iterations)
 
     return X_prev
 

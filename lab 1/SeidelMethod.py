@@ -23,7 +23,9 @@ def seidel_method(system: Matrix, accuracy: float) -> List[int | float]:
     beta = [system.free_members[i] / system.matrix[i][i] for i in range(system.rows)]
     X_prev, X_next = beta.copy(), []
     diff = False
+    iterations = 0
     while not diff:
+        iterations += 1
         for i in range(system.rows):
             # x^(k + 1) = gamma * x^(k + 1) + sigma * x^k + beta
             el = (sum(alpha.matrix[i][j] * X_next[j] if i != j else 0 for j in range(len(X_next)))
@@ -33,6 +35,8 @@ def seidel_method(system: Matrix, accuracy: float) -> List[int | float]:
         diff = all(abs(X_next[i] - X_prev[i]) < accuracy for i in range(system.rows))
         X_prev = X_next
         X_next = []
+
+    print(iterations)
 
     return X_prev
 

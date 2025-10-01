@@ -1,5 +1,6 @@
 from typing import List, Tuple
 
+import numpy as np
 
 from utility.matrix import Matrix
 from utility.functions import prod
@@ -152,7 +153,13 @@ def main():
 
     inv = inverse(L, U, P)
     print("\nInverse matrix:")
-    print(inv)
+    print(inv, end='\n\n\n')
+    system2 = Matrix(4, 4, [[7, 8, 4, -6],
+                           [-1, 6, -2, -6],
+                           [2, 9, 6, -4],
+                           [5, 9, 1, 1]], [-126, -42, -115, -67])
+    print(system2 * inv, end='\n\n\n')
+
 
 
 if __name__ == "__main__":
