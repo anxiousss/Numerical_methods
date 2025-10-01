@@ -1,5 +1,5 @@
 import math
-from typing import List, Tuple, Any
+from typing import List, Tuple
 
 import numpy as np
 
@@ -41,7 +41,7 @@ def stop_condition(A: Matrix, accuracy: float, indexes: List[int]) -> bool:
     """
     for i in range(A.rows):
         for j in range(A.columns):
-            if ((abs(A.matrix[i][j]) >= accuracy and i > j and i in indexes)
+            if ((abs(A.matrix[i][j]) >= accuracy and i > j and j in indexes)
                         or (abs(A.matrix[i][j]) == float('inf') and i < j)):
                 return False
     return True
@@ -73,45 +73,63 @@ def qr_decomposition(system: Matrix) -> Tuple[Matrix, Matrix]:
 
 
 def qr_algorithm(A: Matrix, accuracy: float) -> set[str]:
-    # Все матрицы A являются подобными
+    # Все матрицы A являются подобными.
     current_A = A
+    # Множество собственных значений.
     eigenvalues = set()
-    arg_prev, arg_next = [], []
+    # Массивы для сравнения модуля комплесных чисел на соседних итерациях.
+    mod_prev, mod_next = [], []
     while True:
+        # столбцы в которых собственное значение действительно.
         real_indexes = []
-        for i in range(current_A.rows - 1):
-            a, b, c, d = (current_A.matrix[i][i], current_A.matrix[i][i + 1],
-                          current_A.matrix[i + 1][i], current_A.matrix[i + 1][i + 1])
+        i = 0
+        while i < current_A.rows:
+            # Расчет собственных значений для блока 2x2.
+            if i < current_A.rows - 1 and abs(current_A.matrix[i + 1][i]) > accuracy:
+                a, b, c, d = (current_A.matrix[i][i], current_A.matrix[i][i + 1],
+                              current_A.matrix[i + 1][i], current_A.matrix[i + 1][i + 1])
 
-            D = (a - d) ** 2 + 4 * b * c
-            if D >= 0:
-                real_indexes.append(i)
-                eigenvalues.add(f'{current_A.matrix[i][i]}')
-                eigenvalues.add(f'{current_A.matrix[i + 1][i + 1]}')
+                trace = a + d
+                det = a * d - b * c
+                D = trace ** 2 - 4 * det
+                if D >= 0:
+                    real_indexes.append(i)
+                    eigenvalues.add(f'{(trace + D ** 0.5) / 2}')
+                    eigenvalues.add(f'{(trace - D ** 0.5) / 2}')
+                else:
+                    real_part = trace / 2
+                    imag_part = math.sqrt(-D) / 2
+                    eigenvalues.add(f"{real_part}+{imag_part}j")
+                    eigenvalues.add(f"{real_part}-{imag_part}j")
+                    mod_next.append((real_part ** 2 + imag_part ** 2) ** 0.5)
+
+                i += 2
+
             else:
-                alpha = -b / (2 * a)
-                beta = abs(D) ** 0.5 / (2 * a)
-                arg_next.append((alpha ** 2 + beta ** 2) ** 0.5)
-                eigenvalues.add(f'{alpha} + {beta}j')
-                eigenvalues.add(f'{alpha} - {beta}j')
+                eigenvalues.add(f'{current_A.matrix[i][i]}')
+                i += 1
 
-        if stop_condition(current_A, accuracy, real_indexes) and all(abs(arg_prev[k] - arg_next[k]) < accuracy
-                                                                     for k in range(math.ceil(current_A.rows / 2) // 2)):
+        # math.ceil(current_A.rows / 2) // 2 - количество комплексно сопряженных пар собвстенных значений.
+        if stop_condition(current_A, accuracy, real_indexes) and (all(abs(mod_prev[k] - mod_next[k]) < accuracy
+                                                                     for k in range(math.ceil(current_A.rows / 2) // 2))
+                                                                     if len(mod_prev) != 0 else True):
             return eigenvalues
 
-        arg_prev = arg_next
-        arg_next.clear()
+        mod_prev = mod_next
+        mod_next.clear()
         Q, R = qr_decomposition(current_A)
         current_A = R * Q
         eigenvalues.clear()
 
 def main():
-    system = Matrix(3, 3, [[3, -7, -1], [-9, -8, 7], [5, 2, 2]])
-    A = np.array([[3, -7, -1], [-9, -8, 7], [5, 2, 2]])
-    w, v = np.linalg.eig(A)
-    print(w)
+    system = Matrix(3, 3, [[6, 5, -6], [4, -6, 9], [-6, 6, 1]])
+    system2 = Matrix(3, 3, [[3, -7, -1], [-9, -8, 7], [5, 2, 2]])
+
     eigenvalues = qr_algorithm(system, 1e-10)
-    print("Собственные значения:", eigenvalues)
+    print("Собственные значения:", *eigenvalues, sep='\t')
+    eigenvalues = qr_algorithm(system2, 1e-10)
+    print("Собственные значения:", *eigenvalues, sep='\t')
+
 
 
 if __name__ == "__main__":
