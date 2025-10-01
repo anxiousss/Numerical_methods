@@ -32,10 +32,18 @@ def calculate_norm(vector: List[int | float]) -> int | float:
     return sum(el ** 2 for el in vector) ** 0.5
 
 
+def eigenvalues_from_block(block: List[int | float]) -> Tuple[str, str]:
+    a, b, c, d = block
+    D = (a - d) ** 2 + 4 * b * c
+    alpha = -b / (2 * a)
+    beta = abs(D) ** 0.5 / (2 * a)
+    return f'{alpha} + i{beta}', f'{alpha} - i{beta}'
+
 def stop_condition(A: Matrix, accuracy: float) -> bool:
     """
     Условие остановки работы QR алгоритма.
     """
+    norm = A.calculate_norm()
     for i in range(A.rows):
         for j in range(A.columns):
             if (abs(A.matrix[i][j]) >= accuracy and i > j) or (abs(A.matrix[i][j]) == float('inf') and i < j):
@@ -63,20 +71,28 @@ def qr_decomposition(system: Matrix) -> Tuple[Matrix, Matrix]:
     return orthonormal, R
 
 
-def qr_algorithm(A: Matrix, accuracy: float) -> List[int | float]:
+def qr_algorithm(A: Matrix, accuracy: float) -> List[str]:
     # Все матрицы A являются подобными
     current_A = A
+    subdiagonals = [A.matrix[i + 1][i] for i in range(A.rows - 1)]
+    eigenvalues = [''] * current_A.rows
     while True:
         Q, R = qr_decomposition(current_A)
         current_A = R * Q
-        if stop_condition(current_A, accuracy):
-            break
-    return [current_A.matrix[i][i] for i in range(current_A.rows)]
+        for i in range(current_A.rows - 1):
+            if subdiagonals[i] >= accuracy:
+                a, b, c, d = (current_A.matrix[i][i], current_A.matrix[i][i + 1],
+                              current_A.matrix[i + 1][i], current_A.matrix[i + 1][i + 1])
+                eigenvalues[i], eigenvalues[i + 1] = eigenvalues_from_block([a, b, c, d])
+            else:
+                eigenvalues[i] = f'{current_A.matrix[i][i]}'
 
+        if stop_condition(current_A, accuracy):
+                return eigenvalues
+        eigenvalues = [''] * current_A.rows
 
 def main():
     system = Matrix(3, 3, [[6, 5, -6], [4, -6, 9], [-6, 6, 1]])
-
     eigenvalues = qr_algorithm(system, 1e-10)
     print("Собственные значения:", eigenvalues)
 
