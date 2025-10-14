@@ -1,8 +1,6 @@
 import math
 from typing import List, Tuple
 
-import numpy as np
-
 from utility.matrix import Matrix
 
 

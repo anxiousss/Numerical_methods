@@ -109,7 +109,6 @@ class Matrix:
                 for r in range(self.columns):
                     total += self.matrix[i][r] * other.matrix[r][j]
                 result_matrix[i][j] = total
-                # print(result_matrix)
 
         return Matrix(self.rows, other.columns, result_matrix)
 
