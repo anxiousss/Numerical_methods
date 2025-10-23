@@ -1,3 +1,8 @@
+from typing import  Callable
+
+import inspect
+
+
 def combinations(iterable, r):
     pool = tuple(iterable)
     n = len(pool)
@@ -18,8 +23,8 @@ def combinations(iterable, r):
         yield tuple(pool[i] for i in indices)
 
 
-def prod(iterable, *, start=1):
-    result = start
-    for x in iterable:
-        result *= x
-    return result
+
+def get_function_arity(func: Callable) -> int:
+    """Возвращает количество аргументов функции."""
+    sig = inspect.signature(func)
+    return len(sig.parameters)
