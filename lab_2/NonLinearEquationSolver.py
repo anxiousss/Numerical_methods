@@ -1,17 +1,17 @@
 from math import tan, cos, sqrt
 
-from typing import Callable, Tuple
+from typing import Callable, Tuple, Optional
 
 
 def equation(x: int | float) -> int | float:
     return tan(x) - 5 * x ** 2 + 1
 
 
-def deriative(x: int | float) -> int | float:
+def derivative(x: int | float) -> int | float:
     return 1 / (cos(x) ** 2) - 10 * x
 
 
-def second_deriative(x: int | float) -> int | float:
+def second_derivative(x: int | float) -> int | float:
     return 2 * tan(x) * (1 / cos(x)) ** 2
 
 
@@ -19,12 +19,12 @@ def eq_equation(x: int | float) -> int | float:
     return sqrt((tan(x) + 1) / 5)
 
 
-def eq_deriative(x: int | float) -> int | float:
+def eq_derivative(x: int | float) -> int | float:
     return (1 / cos(x) ** 2) /  (2 * sqrt(5) * sqrt(tan(x) + 1))
 
 
 def simple_iteration_method(eq_equation: Callable[[int | float], int | float],
-                            eq_deriative: Callable[[int | float], int | float],
+                            eq_derivative: Callable[[int | float], int | float],
                             a: int | float,
                             b: int | float,
                             accuracy: float) -> Tuple[float, int]:
@@ -41,7 +41,7 @@ def simple_iteration_method(eq_equation: Callable[[int | float], int | float],
     То x = ϕ(x) имеет и притом единственный на [a, b] корень x*.
 
     :param eq_equation: Эквивалентное уравнение x = ϕ(x).
-    :param eq_deriative: Производная ϕ(x).
+    :param eq_derivative: Производная ϕ(x).
     :param a: Левая граница отрезка.
     :param b: Правая границп отрезка.
     :param accuracy: Точность.
@@ -50,7 +50,7 @@ def simple_iteration_method(eq_equation: Callable[[int | float], int | float],
 
 
     x_prev = (a + b) / 2
-    q = max(eq_deriative(a), eq_deriative(b))
+    q = max(eq_derivative(a), eq_derivative(b))
     k = 0
     while True:
         x_next = eq_equation(x_prev)
@@ -61,10 +61,12 @@ def simple_iteration_method(eq_equation: Callable[[int | float], int | float],
 
 
 def newton_method(equation: Callable[[int | float], int | float],
-                  deriative: Callable[[int | float], int | float],
-                  second_deriative: Callable[[int | float], int | float],
-                  a: int | float, b: int | float,
-                  accuracy: float) -> Tuple[float, int]:
+                  derivative: Callable[[int | float], int | float],
+                  second_derivative: Callable[[int | float], int | float],
+                  accuracy: float,
+                  initial_approximation: Optional[int | float] = None,
+                  a: Optional[int | float] = None,
+                  b: Optional[int | float] = None) -> Tuple[float, int]:
 
     """
     Метод Ньютона работает если точка x0 выбрана так, что f(x0) * f''(x0) > 0, то начатая с нее последовательность xk
@@ -72,22 +74,28 @@ def newton_method(equation: Callable[[int | float], int | float],
 
 
     :param equation: Изначальное уравнение.
-    :param deriative: Первая производная.
-    :param second_deriative: Вторая Производная.
+    :param derivative: Первая производная.
+    :param second_derivative: Вторая Производная.
+    :param initial_approximation: Начальное приближение.
     :param a: Левая граница отрезка.
     :param b: Правая граница отрезка.
     :param accuracy: Точность.
     :return: Корень уравнения и количество итераций.
     """
-    initial_approximation = (a + b) / 2
 
-    if equation(initial_approximation) * second_deriative(initial_approximation) <= 0:
+    if equation(initial_approximation) * second_derivative(initial_approximation) <= 0:
         raise ValueError('Условие сходимости не выполняется.')
 
-    x_prev = initial_approximation
+    if initial_approximation is not None:
+        x_prev = initial_approximation
+    elif a is not None and b is not None:
+        x_prev = (a + b) / 2
+    else:
+        raise ValueError("Необходимо задать либо initial_approximation, либо оба параметра a и b")
+
     k = 0
     while True:
-        x_next = x_prev - equation(x_prev) / deriative(x_prev)
+        x_next = x_prev - equation(x_prev) / derivative(x_prev)
         k += 1
         if abs(x_next - x_prev) < accuracy:
             return x_next, k
@@ -95,9 +103,9 @@ def newton_method(equation: Callable[[int | float], int | float],
 
 
 def main():
-    root, iteration = newton_method(equation, deriative, second_deriative, 0.2, 0.6, 1e-20)
+    root, iteration = newton_method(equation, derivative, second_derivative, 1e-20, 0.4)
     print(root, iteration)
-    root, iteration = simple_iteration_method(eq_equation, eq_deriative, 0.2, 0.6, 1e-20)
+    root, iteration = simple_iteration_method(eq_equation, eq_derivative, 0.2, 0.6, 1e-20)
     print(root, iteration)
 
 

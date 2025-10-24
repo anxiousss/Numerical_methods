@@ -1,4 +1,4 @@
-from math import log10, log, sqrt
+from math import log10, log, sqrt, cos, exp, sin
 
 from typing import Callable, List, Tuple
 
@@ -10,12 +10,15 @@ from lab_1.LU_decomposition import lup_decomposition, solve_lup
 
 
 
+# 20 x ** 2 - 2 * log10(y) - 1
+# 18 4 * x - cos(y)
 def first_equation(x: int | float, y: int | float) -> int | float:
-    return x ** 2 - 2 * log10(y) - 1
+    return 4 * x - cos(y)
 
-
+# 20 x ** 2 - 2 * x * y + 2
+# 18 4 * y - exp(x)
 def second_equation(x: int | float, y: int | float) -> int | float:
-    return x ** 2 - 2 * x * y + 2
+    return 4 * y - exp(x)
 
 
 def jacobian(x: int | float, y: int | float) -> List[List[int | float]]:
@@ -23,16 +26,21 @@ def jacobian(x: int | float, y: int | float) -> List[List[int | float]]:
              [2 * x - 2 * y, -2 * x]]
 
 
+# 20 sqrt(2 * log10(y) + 1)
+# 18 cos(y) / 4
 def eq_first_equation(x: int | float, y: int | float) -> int | float:
-    return sqrt(2 * log10(y) + 1)
+    return cos(y) / 4
 
 
+# 20 (x ** 2 + 2) / (2 * x)
+# 18 exp(x) / 4
 def eq_second_equation(x: int | float, y: int | float) -> int | float:
-    return (x ** 2 + 2) / (2 * x)
+    return exp(x) / 4
 
-def eq_deriatives(x: int | float, y: int | float) -> List[List[int | float]]:
-    return [[0, 1 / (y * sqrt(log(10)) * sqrt(2 * log(x) + log(10)))],
-            [0.5  - 1 / x ** 2], 0]
+# 20 [[0, 1 / (y * sqrt(log(10)) * sqrt(2 * log(x) + log(10)))], [0.5  - 1 / x ** 2], 0]
+# 18 [[5, sin(y)], [1 - exp(x), 4]]
+def eq_derivative(x: int | float, y: int | float) -> List[List[int | float]]:
+    return [[5, sin(y)], [1 - exp(x), 4]]
 
 
 def system_newton_method(jacobian: Callable[..., List[List[int | float]]],
@@ -72,13 +80,14 @@ def system_simple_iteration_method(initial_approximation: List[int | float], *eq
 
         x_prev = x_next
         iterations += 1
+        print(x_next, iterations)
 
 
 def main():
-    solution, i = system_newton_method(jacobian, [0.5, 2],
+    """solution, i = system_newton_method(jacobian, [0.5, 2],
                                     first_equation, second_equation, accuracy=1e-10)
-    print(f'solution = {solution} iterations = {i}')
-    solution, i = system_simple_iteration_method([0.5, 2],
+    print(f'solution = {solution} iterations = {i}')"""
+    solution, i = system_simple_iteration_method([1.0, 1.0],
                                                  eq_first_equation, eq_second_equation, accuracy=1e-10)
     print(f'solution = {solution} iterations = {i}')
 
