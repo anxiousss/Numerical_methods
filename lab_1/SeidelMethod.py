@@ -21,7 +21,7 @@ def seidel_method(system: Matrix, accuracy: float) -> List[int | float]:
                      for j in range(alpha.columns)] for i in range(alpha.rows)]
     # beta[i][j] = b[i] / a[i][i]
     beta = [system.free_members[i] / system.matrix[i][i] for i in range(system.rows)]
-    alpha_norm = alpha.calculate_norm()
+    alpha_norm = Matrix.calculate_norm(alpha.matrix)
     if alpha_norm >= 1:
         print(alpha_norm)
         raise ValueError('Норма матрицы больше единицы, метод не работает.')

@@ -23,7 +23,6 @@ def combinations(iterable, r):
         yield tuple(pool[i] for i in indices)
 
 
-
 def get_function_arity(func: Callable) -> int:
     """Возвращает количество аргументов функции."""
     sig = inspect.signature(func)

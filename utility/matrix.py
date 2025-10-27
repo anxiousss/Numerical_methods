@@ -111,12 +111,13 @@ class Matrix:
 
         return Matrix(self.rows, other.columns, result_matrix)
 
-    def calculate_norm(self) -> int | float:
+    @staticmethod
+    def calculate_norm(matrix:List[List[int | float]]) -> int | float:
         """
         Расчет нормы матрицы для итерационных алгоритмов.
         :return: Норма.
         """
-        return max(map(lambda row: sum(map(abs, row)), self.matrix))
+        return max(map(lambda row: sum(map(abs, row)), matrix))
 
     def copy(self):
         return self.__copy__()

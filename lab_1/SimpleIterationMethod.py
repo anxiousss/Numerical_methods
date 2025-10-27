@@ -20,7 +20,7 @@ def simple_iteration_method(system: Matrix, accuracy: float) -> List[int | float
     alpha.matrix = [[0 if i == j else -system.matrix[i][j] / system.matrix[i][i]
                      for j in range(alpha.columns)] for i in range(alpha.rows)]
     # beta[i][j] = b[i] / a[i][i]
-    alpha_norm = alpha.calculate_norm()
+    alpha_norm = Matrix.calculate_norm(alpha.matrix)
     if alpha_norm >= 1:
         raise ValueError('Норма матрицы больше единицы, метод не работает.')
     beta = [system.free_members[i] / system.matrix[i][i] for i in range(system.rows)]

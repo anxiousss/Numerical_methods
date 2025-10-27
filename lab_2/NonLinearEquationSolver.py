@@ -50,7 +50,14 @@ def simple_iteration_method(eq_equation: Callable[[int | float], int | float],
 
 
     x_prev = (a + b) / 2
-    q = max(eq_derivative(a), eq_derivative(b))
+    x = a
+    q = 0.1
+    while x < b:
+        val = eq_derivative(x)
+        if 1 > q > val:
+            q = val
+        x += 0.001
+
     k = 0
     while True:
         x_next = eq_equation(x_prev)
@@ -104,9 +111,9 @@ def newton_method(equation: Callable[[int | float], int | float],
 
 def main():
     root, iteration = newton_method(equation, derivative, second_derivative, 1e-20, 0.4)
-    print(root, iteration)
+    print(f'root = {root} itetations = {iteration}')
     root, iteration = simple_iteration_method(eq_equation, eq_derivative, 0.2, 0.6, 1e-20)
-    print(root, iteration)
+    print(f'root = {root} itetations = {iteration}')
 
 
 if __name__ == '__main__':
