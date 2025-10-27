@@ -78,8 +78,8 @@ def system_simple_iteration_method(eq_jacobian: Callable[..., List[List[int | fl
     :param accuracy: Точность.
     :return: Решение системы и количество итераций.
     """
-    q = 0.1
-    eps = 0.1
+    q = 0
+    eps = 0.2
     left_borders = []
     right_borders = []
     dimension = len(initial_approximation)
@@ -89,13 +89,13 @@ def system_simple_iteration_method(eq_jacobian: Callable[..., List[List[int | fl
 
     space = left_borders.copy()
     iterations = 10000
-    i = 0
-    while i < iterations:
+    condition = True
+    while condition:
         val = Matrix.calculate_norm(eq_jacobian(*space))
-        if 1 > q > val:
+        if 1 > val > q:
             q = val
         space = [v + 1/iterations for i, v in enumerate(space)]
-        i += 1
+        condition = all(right_borders[i] > space[i] for i in range(dimension))
 
 
     x_prev = initial_approximation
@@ -113,7 +113,7 @@ def main():
     solution, i = system_newton_method(jacobian, [0.5, 2],
                                     first_equation, second_equation, accuracy=1e-20)
     print(f'solution = {solution} iterations = {i}')
-    solution, i = system_simple_iteration_method(eq_jacobian,[0.5, 2],
+    solution, i = system_simple_iteration_method(eq_jacobian,[1, 1],
                                                  eq_first_equation, eq_second_equation, accuracy=1e-20)
     print(f'solution = {solution} iterations = {i}')
 

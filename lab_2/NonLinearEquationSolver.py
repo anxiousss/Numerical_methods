@@ -51,10 +51,10 @@ def simple_iteration_method(eq_equation: Callable[[int | float], int | float],
 
     x_prev = (a + b) / 2
     x = a
-    q = 0.1
+    q = 0
     while x < b:
         val = eq_derivative(x)
-        if 1 > q > val:
+        if 1 > val > q:
             q = val
         x += 0.001
 
