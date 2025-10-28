@@ -1,5 +1,4 @@
 from math import tan, cos, sqrt
-
 from typing import Callable, Tuple, Optional
 
 
@@ -27,7 +26,7 @@ def simple_iteration_method(eq_equation: Callable[[int | float], int | float],
                             eq_derivative: Callable[[int | float], int | float],
                             a: int | float,
                             b: int | float,
-                            accuracy: float) -> Tuple[float, int]:
+                            accuracy: float) -> Tuple[float, int, float]:
     """
     При использовании метода простой итерации уравнение заменяется эквивалентным уравнением с выделенным линейным членом
     x = ϕ(x).  Решение ищется путем построения последовательности xk+1 = ϕ(xk) k = 0, 1, 2 ... начиная с некоторого
@@ -48,7 +47,6 @@ def simple_iteration_method(eq_equation: Callable[[int | float], int | float],
     :return: Корень уравнения и количество итераций.
     """
 
-
     x_prev = (a + b) / 2
     x = a
     q = 0
@@ -61,8 +59,10 @@ def simple_iteration_method(eq_equation: Callable[[int | float], int | float],
     k = 0
     while True:
         x_next = eq_equation(x_prev)
-        if (q / (1 - q)) * abs(x_next - x_prev) <= accuracy:
-            return x_prev, k
+        fault = (q / (1 - q)) * abs(x_prev - x_next)
+        print(f'fault = {fault}')
+        if fault <= accuracy:
+            return x_prev, k, fault
         x_prev = x_next
         k += 1
 
@@ -112,8 +112,8 @@ def newton_method(equation: Callable[[int | float], int | float],
 def main():
     root, iteration = newton_method(equation, derivative, second_derivative, 1e-20, 0.4)
     print(f'root = {root} itetations = {iteration}')
-    root, iteration = simple_iteration_method(eq_equation, eq_derivative, 0.2, 0.6, 1e-20)
-    print(f'root = {root} itetations = {iteration}')
+    root, iteration, fault = simple_iteration_method(eq_equation, eq_derivative, 0.2, 0.6, 1e-20)
+    print(f'root = {root} itetations = {iteration} fault = {fault}')
 
 
 if __name__ == '__main__':

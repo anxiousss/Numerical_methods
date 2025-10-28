@@ -1,13 +1,9 @@
 from math import log10, log, sqrt
-
 from typing import Callable, List, Tuple
 
 from utility.functions import get_function_arity
-
 from utility.matrix import Matrix
-
 from lab_1.LU_decomposition import lup_decomposition, solve_lup
-
 
 
 def first_equation(x: int | float, y: int | float) -> int | float:
@@ -18,7 +14,7 @@ def second_equation(x: int | float, y: int | float) -> int | float:
     return x ** 2 - 2 * x * y + 2
 
 
-def jacobian(x: int | float, y: int | float) -> List[List[int | float]]:
+def jacobi(x: int | float, y: int | float) -> List[List[int | float]]:
     return [[2 * x, -2 / (y * log(10))],
              [2 * x - 2 * y, -2 * x]]
 
@@ -31,28 +27,28 @@ def eq_second_equation(x: int | float, y: int | float) -> int | float:
     return (x ** 2 + 2) / (2 * x)
 
 
-def eq_jacobian(x: int | float, y: int | float) -> List[List[int | float]]:
+def eq_jacobi(x: int | float, y: int | float) -> List[List[int | float]]:
     return [[0, 1 / (y * sqrt(log(10)) * sqrt(2 * log(x) + log(10)))],
             [0.5  - 1 / x ** 2, 0]]
 
 
-def system_newton_method(jacobian: Callable[..., List[List[int | float]]],
+def system_newton_method(jacobi: Callable[..., List[List[int | float]]],
                   initial_approximation: List[int | float], *equations: Callable[..., int | float],
-                  accuracy: int | float = 1e-6) -> Tuple[List[int | float], int]:
+                  accuracy: float = 1e-6) -> Tuple[List[int | float], int]:
     """
-    :param jacobian: Якобиан функций системы.
+    :param jacobi: Якобиан функций системы.
     :param initial_approximation: Начальное приближение.
     :param equations: Функции системы.
     :param accuracy: Точность.
     :return: Решение системы и количество итераций.
     """
 
-    dimension = get_function_arity(jacobian)
+    dimension = get_function_arity(jacobi)
     x_prev = initial_approximation
 
     iterations = 0
     while True:
-        system = Matrix(dimension, dimension, jacobian(*x_prev),
+        system = Matrix(dimension, dimension, jacobi(*x_prev),
                         free_members=[-eq(*x_prev) for eq in equations])
         L, U, P = lup_decomposition(system)
         delta_x = solve_lup(L, U, P, system.free_members)
@@ -68,11 +64,11 @@ def system_newton_method(jacobian: Callable[..., List[List[int | float]]],
         iterations += 1
 
 
-def system_simple_iteration_method(eq_jacobian: Callable[..., List[List[int | float]]],
+def system_simple_iteration_method(eq_jacobi: Callable[..., List[List[int | float]]],
                                    initial_approximation: List[int | float], *eq_equations: Callable[..., int | float],
-                                    accuracy: int | float = 1e-6):
+                                    accuracy: float = 1e-6) -> tuple[list[int | float], int, List[int | float]]:
     """
-    :param eq_jacobian: Якобиан эквивалетных функций системы.
+    :param eq_jacobi: Якобиан эквивалетных функций системы.
     :param initial_approximation: Начальное приближение.
     :param eq_equations: Эквивалетные функции системы.
     :param accuracy: Точность.
@@ -88,13 +84,12 @@ def system_simple_iteration_method(eq_jacobian: Callable[..., List[List[int | fl
         right_borders.append(initial_approximation[i] + eps)
 
     space = left_borders.copy()
-    iterations = 10000
     condition = True
     while condition:
-        val = Matrix.calculate_norm(eq_jacobian(*space))
+        val = Matrix.calculate_norm(eq_jacobi(*space))
         if 1 > val > q:
             q = val
-        space = [v + 1/iterations for i, v in enumerate(space)]
+        space = [v + 1/10000 for i, v in enumerate(space)]
         condition = all(right_borders[i] > space[i] for i in range(dimension))
 
 
@@ -102,20 +97,22 @@ def system_simple_iteration_method(eq_jacobian: Callable[..., List[List[int | fl
     iterations = 0
     while True:
         x_next = [eq(*x_prev) for eq in eq_equations]
-        if all((q / (1 - q)) * abs(x0 - x1) < accuracy for x0, x1 in zip(x_prev, x_next)):
-            return x_next, iterations
+        fault = [(q / (1 - q)) * abs(x0 - x1) for x0, x1 in zip(x_prev, x_next)]
+        print(f'fault = {fault}')
+        if all(f < accuracy for f in fault):
+            return x_next, iterations, fault
 
         x_prev = x_next
         iterations += 1
 
 
 def main():
-    solution, i = system_newton_method(jacobian, [0.5, 2],
+    solution, i = system_newton_method(jacobi, [0.5, 2],
                                     first_equation, second_equation, accuracy=1e-20)
     print(f'solution = {solution} iterations = {i}')
-    solution, i = system_simple_iteration_method(eq_jacobian,[1, 1],
+    solution, i, fault = system_simple_iteration_method(eq_jacobi,[1, 1],
                                                  eq_first_equation, eq_second_equation, accuracy=1e-20)
-    print(f'solution = {solution} iterations = {i}')
+    print(f'solution = {solution} iterations = {i} fault = {fault}')
 
 
 if __name__ == '__main__':
