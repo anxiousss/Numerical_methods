@@ -75,20 +75,21 @@ def main():
     X1 = [-0.4, -0.1, 0.2, 0.5]
     X2 = [-0.4, 0, 0.2, 0.5]
     x = 0.1
-    Y = get_y_values(f, X1)
-    lagrange_val1 = lagrange_interpolation_polynominal(x, X1, Y)
+    Y1 = get_y_values(f, X1)
+    Y2 = get_y_values(f, X2)
+    lagrange_val1 = lagrange_interpolation_polynominal(x, X1, Y1)
     newton_val1 = newton_interpolation_polynominal(x, f, divided_difference, X1)
     estimate_lagrange1 = fault_estimate(x, f, lagrange_val1)
-    estimate_newton1 = fault_estimate(x, f, lagrange_val1)
+    estimate_newton1 = fault_estimate(x, f, newton_val1)
     print('Значения многочленов и оценка погрешности для массива X1')
     print(f'Значение многочлена Лагранжа = {lagrange_val1}. Значение многочлена Ньютона = {newton_val1}')
     print(f'Оценка погрешности многочлена Лагранжа = {estimate_lagrange1}. '
           f'Оценка погрености многочлена Ньютона = {estimate_newton1}', end='\n\n')
 
-    lagrange_val2 = lagrange_interpolation_polynominal(x, X2, Y)
+    lagrange_val2 = lagrange_interpolation_polynominal(x, X2, Y2)
     newton_val2 = newton_interpolation_polynominal(x, f, divided_difference, X2)
     estimate_lagrange2 = fault_estimate(x, f, lagrange_val2)
-    estimate_newton2 = fault_estimate(x, f, lagrange_val2)
+    estimate_newton2 = fault_estimate(x, f, newton_val2)
     print('Значения многочленов и оценка погрешности для массива X2')
     print(f'Значение многочлена Лагранжа = {lagrange_val2}. Значение многочлена Ньютона = {newton_val2}')
     print(f'Оценка погрешности многочлена Лагранжа = {estimate_lagrange2}. '

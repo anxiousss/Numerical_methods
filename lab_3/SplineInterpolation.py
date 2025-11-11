@@ -45,7 +45,7 @@ def spline_coefficients(system: Matrix, F_values: List[int | float],
     :param system: Трехдиагональная система уравнений.
     :param F_values: Образы узлов интерполяции.
     :param h: Массив коэфициентов для вычислений.
-    :return: Конечнын коэффициенты.
+    :return: Конечные коэффициенты.
     """
 
     n = len(F_values)
