@@ -2,28 +2,23 @@ from typing import Callable, List
 from math import sqrt
 
 
-
 def y(x: int | float) -> int | float:
     """
-
-    :param x:
-    :return:
+    Подыинтегральная функция.
+    :param x: Аргумент функции.
+    :return: Образ.
     """
     return sqrt(x) / (4 + 3 * x)
-
-
-def test_y(x):
-    return x / ((3 * x + 4)**2)
 
 def midpoint_rule(func: Callable[[int | float], int | float], step: int | float,
                   a: int | float, b: int | float) -> int | float:
     """
-
-    :param func:
-    :param step:
-    :param a:
-    :param b:
-    :return:
+    Вычисляет определенный интеграл от a до b для функции func методом прямоугольников.
+    :param func: Функция для которой вычисляется интеграл.
+    :param step: Шаг интегрирования.
+    :param a: Начало отрезка.
+    :param b: Конец отрезка.
+    :return: Приблизительное значение интгерала.
     """
 
     total = 0
@@ -39,12 +34,12 @@ def midpoint_rule(func: Callable[[int | float], int | float], step: int | float,
 def trapezoidal_rule(func: Callable[[int | float], int | float], step: int | float,
                      a: int | float, b: int | float) -> int | float:
     """
-
-    :param func:
-    :param step:
-    :param a:
-    :param b:
-    :return:
+    Вычисляет определенный интеграл от a до b для функции func методом трапеций.
+    :param func: Функция для которой вычисляется интеграл.
+    :param step: Шаг интегрирования.
+    :param a: Начало отрезка.
+    :param b: Конец отрезка.
+    :return: Приблизительное значение интгерала.
     """
 
     total = 0
@@ -60,6 +55,14 @@ def trapezoidal_rule(func: Callable[[int | float], int | float], step: int | flo
 
 def simpsons_rule(func: Callable[[int | float], int | float], step: int | float,
                   a: int | float, b: int | float) -> int | float:
+    """
+    Вычисляет определенный интеграл от a до b для функции func методом Симпсона.
+    :param func: Функция для которой вычисляется интеграл.
+    :param step: Шаг интегрирования.
+    :param a: Начало отрезка.
+    :param b: Конец отрезка.
+    :return: Приблизительное значение интгерала.
+    """
     n = int((b - a) / step)
     if n % 2 != 0:
         n -= 1
@@ -79,31 +82,57 @@ def simpsons_rule(func: Callable[[int | float], int | float], step: int | float,
 
     return total * step / 3
 
-def runge_romberg_richardson_method(exact_value: int | float, step_value: int | float,
+def runge_romberg_richardson_method(step_value: int | float,
                                     half_step_value: int | float, accuracy_order: int | float) -> int | float:
     """
-
-    :param exact_value:
-    :param step_value:
-    :param half_step_value:
-    :param accuracy_order:
-    :return:
+    Вычисляет уточненное значение интеграла.
+    :param step_value: Значение с шагом h.
+    :param half_step_value: Значение с шагом h/2.
+    :param accuracy_order: Порядок точности.
+    :return: Уточненное значение.
     """
 
     return half_step_value + (half_step_value - step_value) / (2 ** accuracy_order - 1)
 
 
-
 def main():
-    # a = 1
-    # b = 5
-    # steps = [1.0, 0.5]
-    exact_value = -0.16474
-    step_value = simpsons_rule(test_y, 0.5, -1.0, 1.0)
-    half_step_value = simpsons_rule(test_y, 0.25, -1.0, 1.0)
-    estimate = runge_romberg_richardson_method(exact_value, step_value, half_step_value, 4)
-    print(exact_value - estimate)
+    exact_value = 0.53122
+    a = 1
+    b = 5
+    h1 = 1.0
+    h2 = 0.5
 
+    methods = [
+        ("Метод прямоугольников", midpoint_rule),
+        ("Метод трапеций", trapezoidal_rule),
+        ("Метод Симпсона", simpsons_rule)
+    ]
+
+    print("Вычисление интеграла ∫(√x/(4+3x))dx от 1 до 5")
+    print("Точное значение: 0.53122")
+    print("-" * 85)
+    print(f"{'Метод':<25} | {'h = 1.0':<12} | {'h = 0.5':<12} | {'Уточненное':<12} | {'Погрешность':<12}")
+    print("-" * 85)
+
+    for method_name, method_func in methods:
+        if method_name == "Метод Симпсона":
+            accuracy_order = 4
+        else:
+            accuracy_order = 2
+
+        value_h1 = method_func(y, h1, a, b)
+        value_h2 = method_func(y, h2, a, b)
+
+        refined_value = runge_romberg_richardson_method(
+            value_h1, value_h2, accuracy_order
+        )
+
+        error = abs(refined_value - exact_value)
+
+        print(f"{method_name:<25} | {value_h1:<12.6f} | {value_h2:<12.6f} | "
+              f"{refined_value:<12.6f} | {error:<12.2e}")
+
+    print("-" * 85)
 
 
 if __name__ == '__main__':
