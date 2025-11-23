@@ -33,7 +33,7 @@ def first_derivative(values: List[Tuple[int | float, int | float, int | float]],
 
     return (y2 - y1) / (x2 - x1) + (((y3 - y2) / (x3 - x2) - (y2 - y1) / (x2 - x1)) / (x3 - x1)) * (2 * x - x1 - x2)
 
-def second_deriaitive(values: List[Tuple[int | float, int | float, int | float]]) -> int | float:
+def second_derivative(values: List[Tuple[int | float, int | float, int | float]]) -> int | float:
     """
     Вычисление второй производной в точке.
     :param values: Коэффициенты для вычисления производной.
@@ -51,7 +51,7 @@ def main():
     x = 1.0
     values = coefficients_defining(X, Y, x)
     fd = first_derivative(values, x)
-    sd = second_deriaitive(values)
+    sd = second_derivative(values)
 
     print(f'Первая производная = {fd}')
     print(f'Вторая производная = {sd}')
