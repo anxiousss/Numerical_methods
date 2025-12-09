@@ -167,6 +167,7 @@ def runge_kutta_method(space: Tuple[int | float, int | float], h: float | int,
     :return: Два массива точек X, Y.
     """
 
+    global y_next, z_next
     x0, y0, _, z0 = initial_condition
     a, b = space
 
@@ -392,6 +393,94 @@ def main():
     errors = runge_romberg_error_estimation(space, h, solutions, 4)
     print_results(X_h, Y_h, errors, "Метод Адамса-Бэшфортса-Моултона.")
 
+def plot_all_solutions():
+    initial_condition = (2, 2 ** 1.5, 2, 1.5 * (2 ** 0.5))
+    space = (2, 3)
+    h = 0.1
+
+    methods = {
+        "Явный метод Эйлера": euler_method(space, h, initial_condition, f),
+        "Метод Эйлера-Коши": euler_cauchy_method(space, h, initial_condition, f),
+        "Улучшенный метод Эйлера": improved_euler_method(space, h, initial_condition, f),
+        "Метод Рунге-Кутты 3 порядка": runge_kutta_method(space, h, initial_condition, f, 3),
+        "Метод Рунге-Кутты 4 порядка": runge_kutta_method(space, h, initial_condition, f, 4),
+        "Метод Адамса-Бэшфортса-Моултона": adams_bashforth_moulton_method(space, h, initial_condition, f)
+    }
+
+    x_exact = np.linspace(2, 3, 1000)
+    y_exact = exact_solution(x_exact)
+
+    fig, axes = plt.subplots(2, 1, figsize=(12, 10))
+
+    ax1 = axes[0]
+
+    ax1.plot(x_exact, y_exact, 'k-', linewidth=3, label='Точное решение', zorder=10)
+
+    colors = plt.cm.tab10.colors
+    for idx, (method_name, solution) in enumerate(methods.items()):
+        x_vals, y_vals = solution[0], solution[1]
+        ax1.plot(x_vals, y_vals, 'o-', linewidth=1.5, markersize=6,
+                 color=colors[idx % len(colors)], label=method_name, alpha=0.8)
+
+    ax1.set_xlabel('x', fontsize=12)
+    ax1.set_ylabel('y', fontsize=12)
+    ax1.set_title('Сравнение численных методов решения ОДУ 2-го порядка', fontsize=14, fontweight='bold')
+    ax1.grid(True, alpha=0.3)
+    ax1.legend(loc='best', fontsize=9)
+    ax1.set_xlim(1.95, 3.05)
+
+    ax2 = axes[1]
+
+    for idx, (method_name, solution) in enumerate(methods.items()):
+        x_vals, y_vals = solution[0], solution[1]
+        y_exact_vals = exact_solution(np.array(x_vals))
+        errors = np.abs(y_vals - y_exact_vals)
+        ax2.plot(x_vals, errors, 'o-', linewidth=1.5, markersize=6,
+                 color=colors[idx % len(colors)], label=method_name, alpha=0.8)
+
+    ax2.set_xlabel('x', fontsize=12)
+    ax2.set_ylabel('Абсолютная ошибка', fontsize=12)
+    ax2.set_title('Абсолютные ошибки численных методов', fontsize=14, fontweight='bold')
+    ax2.grid(True, alpha=0.3)
+    ax2.legend(loc='best', fontsize=9)
+    ax2.set_xlim(1.95, 3.05)
+    ax2.set_yscale('log')
+
+    plt.tight_layout()
+    plt.show()
+
+    fig2, ax3 = plt.subplots(figsize=(10, 6))
+
+    exact_final = exact_solution(3)
+
+    methods_final = []
+    errors_final = []
+
+    for method_name, solution in methods.items():
+        x_vals, y_vals = solution[0], solution[1]
+        if x_vals[-1] >= 2.95:
+            final_y = y_vals[-1]
+            methods_final.append(method_name)
+            errors_final.append(abs(final_y - exact_final))
+
+    bars = ax3.barh(methods_final, errors_final, color=colors[:len(methods_final)])
+
+    for bar, error in zip(bars, errors_final):
+        ax3.text(bar.get_width() * 1.05, bar.get_y() + bar.get_height() / 2,
+                 f'{error:.2e}', va='center', fontsize=9)
+
+    ax3.set_xlabel('Абсолютная ошибка в точке x=3', fontsize=12)
+    ax3.set_title('Сравнение точности методов в конечной точке', fontsize=14, fontweight='bold')
+    ax3.grid(True, alpha=0.3, axis='x')
+    ax3.set_xscale('log')
+
+    plt.tight_layout()
+    plt.show()
+
+
+if __name__ == '__main__':
+    main()
+    plot_all_solutions()
 
 
 if __name__ == '__main__':
