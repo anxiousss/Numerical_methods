@@ -1,5 +1,9 @@
 from typing import Tuple, List, Callable
 
+import matplotlib.pyplot as plt
+import numpy as np
+
+
 
 def exact_solution(x: int | float) -> int | float:
     """
@@ -393,12 +397,15 @@ def main():
     errors = runge_romberg_error_estimation(space, h, solutions, 4)
     print_results(X_h, Y_h, errors, "Метод Адамса-Бэшфортса-Моултона.")
 
+
 def plot_all_solutions():
+    # Данные из main функции
     initial_condition = (2, 2 ** 1.5, 2, 1.5 * (2 ** 0.5))
     space = (2, 3)
     h = 0.1
 
-    methods = {
+    # Получаем решения для каждого метода
+    solutions = {
         "Явный метод Эйлера": euler_method(space, h, initial_condition, f),
         "Метод Эйлера-Коши": euler_cauchy_method(space, h, initial_condition, f),
         "Улучшенный метод Эйлера": improved_euler_method(space, h, initial_condition, f),
@@ -408,7 +415,7 @@ def plot_all_solutions():
     }
 
     x_exact = np.linspace(2, 3, 1000)
-    y_exact = exact_solution(x_exact)
+    y_exact = np.array([exact_solution(x) for x in x_exact])
 
     fig, axes = plt.subplots(2, 1, figsize=(12, 10))
 
@@ -417,8 +424,11 @@ def plot_all_solutions():
     ax1.plot(x_exact, y_exact, 'k-', linewidth=3, label='Точное решение', zorder=10)
 
     colors = plt.cm.tab10.colors
-    for idx, (method_name, solution) in enumerate(methods.items()):
-        x_vals, y_vals = solution[0], solution[1]
+    for idx, (method_name, solution) in enumerate(solutions.items()):
+        if method_name.startswith("Метод Рунге-Кутты"):
+            x_vals, y_vals = solution[0], solution[1]
+        else:
+            x_vals, y_vals = solution
         ax1.plot(x_vals, y_vals, 'o-', linewidth=1.5, markersize=6,
                  color=colors[idx % len(colors)], label=method_name, alpha=0.8)
 
@@ -431,10 +441,14 @@ def plot_all_solutions():
 
     ax2 = axes[1]
 
-    for idx, (method_name, solution) in enumerate(methods.items()):
-        x_vals, y_vals = solution[0], solution[1]
-        y_exact_vals = exact_solution(np.array(x_vals))
-        errors = np.abs(y_vals - y_exact_vals)
+    for idx, (method_name, solution) in enumerate(solutions.items()):
+        if method_name.startswith("Метод Рунге-Кутты"):
+            x_vals, y_vals = solution[0], solution[1]
+        else:
+            x_vals, y_vals = solution
+
+        y_exact_vals = np.array([exact_solution(x) for x in x_vals])
+        errors = np.abs(np.array(y_vals) - y_exact_vals)
         ax2.plot(x_vals, errors, 'o-', linewidth=1.5, markersize=6,
                  color=colors[idx % len(colors)], label=method_name, alpha=0.8)
 
@@ -456,8 +470,12 @@ def plot_all_solutions():
     methods_final = []
     errors_final = []
 
-    for method_name, solution in methods.items():
-        x_vals, y_vals = solution[0], solution[1]
+    for method_name, solution in solutions.items():
+        if method_name.startswith("Метод Рунге-Кутты"):
+            x_vals, y_vals = solution[0], solution[1]
+        else:
+            x_vals, y_vals = solution
+
         if x_vals[-1] >= 2.95:
             final_y = y_vals[-1]
             methods_final.append(method_name)
@@ -481,7 +499,3 @@ def plot_all_solutions():
 if __name__ == '__main__':
     main()
     plot_all_solutions()
-
-
-if __name__ == '__main__':
-    main()
