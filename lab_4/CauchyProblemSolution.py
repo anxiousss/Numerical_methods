@@ -300,7 +300,7 @@ def runge_romberg_error_estimation(space: Tuple[float, float], h: float,
             y_h_val = y_h[idx_h]
             y_2h_val = y_2h[i]
 
-            R_h = (y_h_val - y_2h_val) / (2 ** p - 1)
+            R_h = y_h_val + (y_h_val - y_2h_val) / (2 ** p - 1)
 
             results.append((x_val, y_h_val, R_h))
 
@@ -331,7 +331,7 @@ def print_results(X: List[int | float],  Y: List[int | float],
     print(f"\n{method_name:^100}")
     print("=" * 120)
     print(f"{'x':<8} {'y_approx':<12} {'y_exact':<12} {'Abs Error':<15} "
-          f"{'Rel Error':<15} {'R_h':<15} {'Ratio':<15} {'Error Type':<15}")
+          f"{'Rel Error':<15} {'R_h':<15} {'Runge-Romberg estimate':<15}")
     print("-" * 120)
 
     for i, (x, y_approx) in enumerate(zip(X, Y)):
@@ -342,16 +342,15 @@ def print_results(X: List[int | float],  Y: List[int | float],
         if x in runge_dict:
             y_h, R_h = runge_dict[x]
             runge_abs = abs(R_h)
-            ratio = abs_error / runge_abs if runge_abs > 0 else float('inf')
+            ratio = runge_abs - y_approx
 
-            error_type = "UNDER" if ratio < 0.5 else "OVER" if ratio > 2.0 else "GOOD"
 
             print(f"{x:<8.2f} {y_approx:<12.6f} {y_exact:<12.6f} "
-                  f"{abs_error:<15.6e} {rel_error:<15.6e} {R_h:<15.6e} "
-                  f"{ratio:<15.3f} {error_type:<15}")
+                  f"{abs_error:<15.6e} {rel_error:<15.6e} {R_h:<15.03e} "
+                  f"{ratio:<15.30f}")
         else:
             print(f"{x:<8.2f} {y_approx:<12.6f} {y_exact:<12.6f} "
-                  f"{abs_error:<15.6e} {rel_error:<15.6e} {'N/A':<15} {'N/A':<15} {'N/A':<15}")
+                  f"{abs_error:<15.6e} {rel_error:<15.6e} {'N/A':<15} {'N/A':<15}")
 
     print()
 
@@ -361,55 +360,43 @@ def main():
     initial_condition = (2, 2 ** 1.5, 2, 1.5 * (2 ** 0.5))
     space = (2, 3)
     h = 0.1
-    X_h, Y_h = euler_method(space, h, initial_condition, f)
-    X_2h, Y_2h = euler_method(space, 2 * h, initial_condition, f)
-    solutions = (X_h, Y_h, X_2h, Y_2h)
-    errors = runge_romberg_error_estimation(space, h, solutions)
-    print_results(X_h, Y_h, errors, "Явный метод Эйлера.")
 
-    X_h, Y_h = euler_cauchy_method(space, h, initial_condition, f)
-    X_2h, Y_2h = euler_cauchy_method(space, 2 * h, initial_condition, f)
-    solutions = (X_h, Y_h, X_2h, Y_2h)
-    errors = runge_romberg_error_estimation(space, h, solutions, 2)
-    print_results(X_h, Y_h, errors, "Метод Эйлера-Коши.")
+    methods = {
+        "Явный метод Эйлера.": euler_method,
+        "Метод Эйлера-Коши.": euler_cauchy_method,
+        "Улучшенный метод Эйлера.": improved_euler_method,
+        "Метод Рунге-Кутты 4 порядка.": runge_kutta_method,
+        "Метод Адамса-Бэшфортса-Моултона.": adams_bashforth_moulton_method
+    }
 
-    X_h, Y_h = improved_euler_method(space, h, initial_condition, f)
-    X_2h, Y_2h = improved_euler_method(space, 2 * h, initial_condition, f)
-    solutions = (X_h, Y_h, X_2h, Y_2h)
-    errors = runge_romberg_error_estimation(space, h, solutions, 2)
-    print_results(X_h, Y_h, errors, "Улучшенный метод Эйлера.")
+    for name, func in methods.items():
+        if name == "Метод Рунге-Кутты 4 порядка.":
+            X_h, Y_h, _ = func(space, h, initial_condition, f, 4)
+            X_2h, Y_2h, _ = func(space, 2 * h, initial_condition, f, 4)
+            p = 4
+        else:
+            X_h, Y_h = func(space, h, initial_condition, f)
+            X_2h, Y_2h = func(space, 2 * h, initial_condition, f)
 
-    X_h, Y_h, _ = runge_kutta_method(space, h, initial_condition, f, 3)
-    X_2h, Y_2h, _ = runge_kutta_method(space, 2 * h, initial_condition, f, 3)
-    solutions = (X_h, Y_h, X_2h, Y_2h)
-    errors = runge_romberg_error_estimation(space, h, solutions, 3)
-    print_results(X_h, Y_h, errors, "Метод Рунге-Кутты 3 порядка.")
+            if name in ["Явный метод Эйлера."]:
+                p = 1
+            else:
+                p = 2 if name in ["Метод Эйлера-Коши.", "Улучшенный метод Эйлера."] else 4
 
-    X_h, Y_h, _ = runge_kutta_method(space, h, initial_condition, f, 4)
-    X_2h, Y_2h, _ = runge_kutta_method(space, 2 * h, initial_condition, f, 4)
-    solutions = (X_h, Y_h, X_2h, Y_2h)
-    errors = runge_romberg_error_estimation(space, h, solutions, 4)
-    print_results(X_h, Y_h, errors, "Метод Рунге-Кутты 4 порядка.")
-
-    X_h, Y_h = adams_bashforth_moulton_method(space, h, initial_condition, f)
-    X_2h, Y_2h = adams_bashforth_moulton_method(space, 2 * h, initial_condition, f)
-    solutions = (X_h, Y_h, X_2h, Y_2h)
-    errors = runge_romberg_error_estimation(space, h, solutions, 4)
-    print_results(X_h, Y_h, errors, "Метод Адамса-Бэшфортса-Моултона.")
+        solutions = (X_h, Y_h, X_2h, Y_2h)
+        errors = runge_romberg_error_estimation(space, h, solutions, p)
+        print_results(X_h, Y_h, errors, name)
 
 
 def plot_all_solutions():
-    # Данные из main функции
     initial_condition = (2, 2 ** 1.5, 2, 1.5 * (2 ** 0.5))
     space = (2, 3)
     h = 0.1
 
-    # Получаем решения для каждого метода
     solutions = {
         "Явный метод Эйлера": euler_method(space, h, initial_condition, f),
         "Метод Эйлера-Коши": euler_cauchy_method(space, h, initial_condition, f),
         "Улучшенный метод Эйлера": improved_euler_method(space, h, initial_condition, f),
-        "Метод Рунге-Кутты 3 порядка": runge_kutta_method(space, h, initial_condition, f, 3),
         "Метод Рунге-Кутты 4 порядка": runge_kutta_method(space, h, initial_condition, f, 4),
         "Метод Адамса-Бэшфортса-Моултона": adams_bashforth_moulton_method(space, h, initial_condition, f)
     }
