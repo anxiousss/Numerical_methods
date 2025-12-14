@@ -308,7 +308,7 @@ def runge_romberg_error_estimation(space: Tuple[float, float], h: float,
 
 
 def print_results(X: List[int | float],  Y: List[int | float],
-                  runge_estimates: List[int | float], method_name: str) -> None:
+                  runge_estimates: List[int | float], solution_func, method_name: str) -> None:
     """
     Вывод резульататов методов и сравнение с точной функцией.
     :param X: Массив Прообразов.
@@ -322,7 +322,7 @@ def print_results(X: List[int | float],  Y: List[int | float],
     exact_error_data = []
 
     for x, y_approx in zip(X, Y):
-        y_exact = exact_solution(x)
+        y_exact = solution_func(x)
         abs_error = abs(y_approx - y_exact)
         rel_error = abs_error / abs(y_exact) if abs(y_exact) > 1e-12 else 0
 
@@ -335,7 +335,7 @@ def print_results(X: List[int | float],  Y: List[int | float],
     print("-" * 120)
 
     for i, (x, y_approx) in enumerate(zip(X, Y)):
-        y_exact = exact_solution(x)
+        y_exact = solution_func(x)
         abs_error = abs(y_approx - y_exact)
         rel_error = abs_error / abs(y_exact) if abs(y_exact) > 1e-12 else 0
 
@@ -345,7 +345,7 @@ def print_results(X: List[int | float],  Y: List[int | float],
             ratio = runge_abs - y_approx
 
 
-            print(f"{x:<8.2f} {y_approx:<12.6f} {y_exact:<12.6f} "
+            print(f"{x:<8.3f} {y_approx:<12.6f} {y_exact:<12.6f} "
                   f"{abs_error:<15.6e} {rel_error:<15.6e} {R_h:<15.03e} "
                   f"{ratio:<15.30f}")
         else:
@@ -385,7 +385,7 @@ def main():
 
         solutions = (X_h, Y_h, X_2h, Y_2h)
         errors = runge_romberg_error_estimation(space, h, solutions, p)
-        print_results(X_h, Y_h, errors, name)
+        print_results(X_h, Y_h, errors, exact_solution, name)
 
 
 def plot_all_solutions():
