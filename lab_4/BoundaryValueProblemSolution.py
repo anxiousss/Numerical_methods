@@ -131,74 +131,6 @@ def finite_difference_method(initial_condition: Tuple[float, float, float, float
 
     return x, y
 
-
-def plot_comparison_graphs(X_shooting: List[float], Y_shooting: List[float],
-                           X_finite: List[float], Y_finite: List[float],
-                           exact_solution_func: Callable[[float], float],
-                           title_suffix: str = "") -> None:
-    """
-    Построение графиков сравнения численных решений с точным решением.
-
-    :param X_shooting: Массив x для метода стрельбы
-    :param Y_shooting: Массив y для метода стрельбы
-    :param X_finite: Массив x для конечно-разностного метода
-    :param Y_finite: Массив y для конечно-разностного метода
-    :param exact_solution_func: Функция точного решения
-    :param title_suffix: Дополнительная строка для заголовков графиков
-    """
-
-    # Вычисление точных значений
-    Y_exact_shooting = [exact_solution_func(x) for x in X_shooting]
-    Y_exact_finite = [exact_solution_func(x) for x in X_finite]
-
-    # Вычисление погрешностей
-    errors_shooting = [abs(y_num - y_exact) for y_num, y_exact in zip(Y_shooting, Y_exact_shooting)]
-    errors_finite = [abs(y_num - y_exact) for y_num, y_exact in zip(Y_finite, Y_exact_finite)]
-
-    # 2. Детальный график сравнения
-    plt.figure(figsize=(14, 6))
-
-    plt.subplot(2, 2, 1)
-    plt.plot(X_shooting, Y_exact_shooting, 'k-', linewidth=3, label='Точное решение', alpha=0.8)
-    plt.plot(X_shooting, Y_shooting, 'b--', linewidth=1.5, label='Метод стрельбы')
-    plt.plot(X_finite, Y_finite, 'r-.', linewidth=1.5, label='Конечно-разностный метод')
-    plt.xlabel('x')
-    plt.ylabel('y(x)')
-    plt.title(f'Сравнение решений y\'\' - tan(x)y\' + 2y = 0\n{title_suffix}')
-    plt.legend()
-    plt.grid(True)
-
-    plt.tight_layout()
-    plt.show()
-    plt.subplot(1, 2, 2)
-    # График относительных погрешностей
-    rel_errors_shooting = []
-    for err, y_exact in zip(errors_shooting, Y_exact_shooting):
-        if abs(y_exact) > 1e-10:
-            rel_errors_shooting.append(err / abs(y_exact))
-        else:
-            rel_errors_shooting.append(0)
-
-    rel_errors_finite = []
-    for err, y_exact in zip(errors_finite, Y_exact_finite):
-        if abs(y_exact) > 1e-10:
-            rel_errors_finite.append(err / abs(y_exact))
-        else:
-            rel_errors_finite.append(0)
-
-    plt.plot(X_shooting, rel_errors_shooting, 'b-', label='Метод стрельбы', alpha=0.7)
-    plt.plot(X_finite, rel_errors_finite, 'r-', label='Конечно-разностный метод', alpha=0.7)
-    plt.xlabel('x')
-    plt.ylabel('Относительная погрешность')
-    plt.title('Относительные погрешности методов')
-    plt.legend()
-    plt.grid(True)
-    plt.yscale('log')
-
-    plt.tight_layout()
-    plt.show()
-
-
 def plot_solutions_comparison(X_shooting: List[float], Y_shooting: List[float],
                               X_finite: List[float], Y_finite: List[float],
                               exact_solution_func: Callable[[float], float],
@@ -296,14 +228,6 @@ def main():
                               exact_solution,
                               f"y'' - tan(x)y' + 2y = 0\nN={N}, шаг={step}")
 
-
-
-    # Вычисление ошибок для статистики
-    Y_exact_shooting = [exact_solution(x) for x in X_shooting]
-    Y_exact_finite = [exact_solution(x) for x in X_finite]
-
-    errors_shooting = [abs(y_num - y_exact) for y_num, y_exact in zip(Y_shooting, Y_exact_shooting)]
-    errors_finite = [abs(y_num - y_exact) for y_num, y_exact in zip(Y_finite, Y_exact_finite)]
 
 
 if __name__ == '__main__':
