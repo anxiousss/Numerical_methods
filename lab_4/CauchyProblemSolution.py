@@ -277,13 +277,13 @@ def adams_bashforth_moulton_method(space: Tuple[int | float, int | float], h: fl
 
     return X, Y
 
-def runge_romberg_error_estimation(space: Tuple[float, float], h: float,
+
+def runge_romberg_error_estimation(h: float,
                                    solutions: Tuple[List[float], List[float], List[float], List[float]], p: int = 1
                                    ) -> List[int | float]:
 
     """
     Оценка погрешности методом Рунге-Ромберга.
-    :param space: Отрезок исков на котором рассматривается решении.
     :param h: Шаг алгоритма.
     :param solutions: Решения оду с шагами h и 2h.
     :param p: Порядок точности.
@@ -294,9 +294,9 @@ def runge_romberg_error_estimation(space: Tuple[float, float], h: float,
     results = []
 
     for i, x_val in enumerate(x_2h):
-        idx_h = int(round((x_val - space[0]) / h))
+        idx_h = min(range(len(x_h)), key=lambda i: abs(x_h[i] - x_val))
 
-        if 0 <= idx_h < len(y_h) and abs(x_h[idx_h] - x_val) < 1e-10:
+        if abs(x_h[idx_h] - x_val) < h * 1e-10:
             y_h_val = y_h[idx_h]
             y_2h_val = y_2h[i]
 
@@ -384,7 +384,7 @@ def main():
                 p = 2 if name in ["Метод Эйлера-Коши.", "Улучшенный метод Эйлера."] else 4
 
         solutions = (X_h, Y_h, X_2h, Y_2h)
-        errors = runge_romberg_error_estimation(space, h, solutions, p)
+        errors = runge_romberg_error_estimation(h, solutions, p)
         print_results(X_h, Y_h, errors, exact_solution, name)
 
 
